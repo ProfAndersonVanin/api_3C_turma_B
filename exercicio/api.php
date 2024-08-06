@@ -26,15 +26,33 @@
         'quartaParte' => $quarta
     ];
 
-    //MOSTRANDO A RESPOSTA
-    //echo json_encode($response);
-
-
     //SELEÇÃO DO MÉTODO
 
     switch($metodo){
         case 'GET':
             // lógica para GET
+            if($terceira == 'alunos' && $quarta ==''){
+                lista_alunos();
+            }
+            elseif($terceira == 'alunos' && $quarta !=''){
+                lista_um_aluno($quarta);
+            }
+            elseif($terceira == 'cursos' && $quarta == ''){
+                echo json_encode(
+                    [
+                        'mensagem' => 'LISTA TODOS OS CURSOS!'
+                    ]
+                );
+            }
+            elseif($terceira == 'cursos' && $quarta !=''){
+                echo json_encode(
+                    [
+                        'mensagem' => 'LISTA DE UM CURSO!',
+                        'id_curso' => $quarta
+                    ]
+                );
+            }
+            
             break;
         case 'POST':
             //lógica para POST
@@ -52,6 +70,46 @@
                 ]
             );
             break;
+    }
+
+
+
+    function lista_alunos(){
+        global $conexao;
+        $resultado = $conexao->query("SELECT * FROM alunos");
+        $alunos = $resultado->fetch_all(MYSQLI_ASSOC);
+        echo json_encode(
+            [
+                'mensagem' => 'LISTA TODOS OS ALUNOS!',
+                'dados' => $alunos
+            ]
+        );
+    }
+
+    function lista_um_aluno($quarta){
+        global $conexao;
+        $stmt = $conexao->prepare("SELECT * FROM alunos WHERE id = ?");
+        $stmt->bind_param('i',$quarta);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $aluno = $resultado->fetch_assoc();
+
+        if($aluno == ''){
+            echo json_encode(
+                [
+                    'mensagem' => 'NÃO FOI ENCONTRADO O ALUNO ACIMA!'
+                ]
+            );
+        }else{
+            echo json_encode(
+                [
+                    'mensagem' => 'LISTA DE UM ALUNO!',
+                    'dados_aluno' => $aluno
+                ]
+            );
+        }
+
+        
     }
 
 
