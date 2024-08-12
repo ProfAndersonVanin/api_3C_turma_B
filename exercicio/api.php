@@ -38,19 +38,21 @@
                 lista_um_aluno($quarta);
             }
             elseif($terceira == 'cursos' && $quarta == ''){
-                echo json_encode(
-                    [
-                        'mensagem' => 'LISTA TODOS OS CURSOS!'
-                    ]
-                );
+                lista_cursos();
+                // echo json_encode(
+                //     [
+                //         'mensagem' => 'LISTA TODOS OS CURSOS!'
+                //     ]
+                // );
             }
             elseif($terceira == 'cursos' && $quarta !=''){
-                echo json_encode(
-                    [
-                        'mensagem' => 'LISTA DE UM CURSO!',
-                        'id_curso' => $quarta
-                    ]
-                );
+                lista_um_curso($quarta);
+                // echo json_encode(
+                //     [
+                //         'mensagem' => 'LISTA DE UM CURSO!',
+                //         'id_curso' => $quarta
+                //     ]
+                // );
             }
             
             break;
@@ -105,6 +107,44 @@
                 [
                     'mensagem' => 'LISTA DE UM ALUNO!',
                     'dados_aluno' => $aluno
+                ]
+            );
+        }
+
+        
+    }
+
+    function lista_cursos(){
+        global $conexao;
+        $resultado = $conexao->query("SELECT * FROM cursos");
+        $cursos = $resultado->fetch_all(MYSQLI_ASSOC);
+        echo json_encode(
+            [
+                'mensagem' => 'LISTA TODOS OS CURSOS!',
+                'dados' => $cursos
+            ]
+        );
+    }
+
+    function lista_um_curso($quarta){
+        global $conexao;
+        $stmt = $conexao->prepare("SELECT * FROM cursos WHERE id_curso = ?");
+        $stmt->bind_param('i',$quarta);
+        $stmt->execute();
+        $resultado = $stmt->get_result();
+        $curso = $resultado->fetch_assoc();
+
+        if($curso == ''){
+            echo json_encode(
+                [
+                    'mensagem' => 'NÃO FOI ENCONTRADO O CURSO ACIMA!'
+                ]
+            );
+        }else{
+            echo json_encode(
+                [
+                    'mensagem' => 'LISTA DE UM CURSO!',
+                    'dados_curso' => $curso
                 ]
             );
         }
